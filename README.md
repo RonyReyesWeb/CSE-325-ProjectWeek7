@@ -84,13 +84,3 @@ General steps:
 4. Make sure WebSockets are enabled on the host (on by default on Render; on
    Azure App Service, turn on "Web sockets" under Configuration > General
    settings).
-
-## Still to do before final submission
-
-- [ ] Push to GitHub, confirm the repo link works
-- [ ] Deploy to a cloud host, confirm the live URL works
-- [ ] Record the ~5–7 minute demo video (both teammates on camera, each
-      presenting part of the app) and upload to YouTube
-- [ ] Submit Trello board link, GitHub link, deployed URL, and video link
-      together in Canvas per the W07 assignment instructions
-- [ ] Complete the individual peer evaluation
