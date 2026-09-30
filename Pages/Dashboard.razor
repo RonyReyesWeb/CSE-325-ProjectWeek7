@@ -1,0 +1,76 @@
+@page "/dashboard"
+@attribute [Authorize]
+@inject IBudgetService BudgetService
+@inject CurrentUserService CurrentUser
+
+<PageTitle>Dashboard</PageTitle>
+
+<h1>Budget Summary — @_monthLabel</h1>
+
+@if (_errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@_errorMessage</div>
+}
+
+@if (_summary is null)
+{
+    <p><em>Loading…</em></p>
+}
+else if (_summary.Count == 0)
+{
+    <p>You don't have any budgets set up yet. Go to <a href="budgets">Budgets</a> to create one.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Spent</th>
+                <th>Remaining</th>
+                <th style="width: 25%">Used</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in _summary)
+            {
+                <tr class="@(item.Remaining < 0 ? "table-danger" : "")">
+                    <td>@item.CategoryName</td>
+                    <td>@item.MonthlyLimit.ToString("C")</td>
+                    <td>@item.Spent.ToString("C")</td>
+                    <td>@item.Remaining.ToString("C")</td>
+                    <td>
+                        <div class="progress" role="progressbar" aria-valuenow="@item.PercentUsed" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar @(item.PercentUsed > 100 ? "bg-danger" : "bg-success")"
+                                 style="width: @(Math.Min(item.PercentUsed, 100))%">
+                                @item.PercentUsed.ToString("0")%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<BudgetSummaryItem>? _summary;
+    private string? _errorMessage;
+    private readonly string _monthLabel = DateTime.Today.ToString("MMMM yyyy");
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var userId = await CurrentUser.GetUserIdAsync();
+            var today = DateTime.Today;
+            _summary = await BudgetService.GetSummaryForUserAsync(userId, today.Year, today.Month);
+        }
+        catch (ServiceException ex)
+        {
+            _errorMessage = ex.Message;
+            _summary = new();
+        }
+    }
+}

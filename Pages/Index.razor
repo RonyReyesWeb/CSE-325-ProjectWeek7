@@ -1,0 +1,18 @@
+@page "/"
+
+<PageTitle>Personal Budget Tracker</PageTitle>
+
+<h1>Personal Budget Tracker</h1>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Welcome back! Head to your <a href="dashboard">dashboard</a> to see this month's budget summary.</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>Track your spending against a monthly budget, broken down by category.</p>
+        <p>
+            <a class="btn btn-primary" href="Account/Login">Log in</a>
+            <a class="btn btn-outline-primary" href="Account/Register">Register</a>
+        </p>
+    </NotAuthorized>
+</AuthorizeView>

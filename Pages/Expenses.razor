@@ -1,0 +1,162 @@
+@page "/expenses"
+@attribute [Authorize]
+@inject IExpenseService ExpenseService
+@inject ICategoryService CategoryService
+@inject CurrentUserService CurrentUser
+
+<PageTitle>Expenses</PageTitle>
+
+<h1>Expenses</h1>
+
+@if (_errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@_errorMessage</div>
+}
+
+<EditForm Model="_form" OnValidSubmit="SaveAsync" class="row g-2 align-items-end mb-4">
+    <DataAnnotationsValidator />
+    <div class="col-md-3">
+        <label class="form-label">Description</label>
+        <InputText class="form-control" @bind-Value="_form.Description" />
+        <ValidationMessage For="() => _form.Description" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Amount</label>
+        <InputNumber class="form-control" @bind-Value="_form.Amount" />
+        <ValidationMessage For="() => _form.Amount" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Date</label>
+        <InputDate class="form-control" @bind-Value="_form.Date" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Category</label>
+        <InputSelect class="form-select" @bind-Value="_form.CategoryId">
+            <option value="0">Choose...</option>
+            @if (_categories is not null)
+            {
+                @foreach (var c in _categories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            }
+        </InputSelect>
+        <ValidationMessage For="() => _form.CategoryId" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">@(_editingId is null ? "Add" : "Save")</button>
+        @if (_editingId is not null)
+        {
+            <button type="button" class="btn btn-link" @onclick="CancelEdit">Cancel</button>
+        }
+    </div>
+</EditForm>
+
+@if (_expenses is null)
+{
+    <p><em>Loading…</em></p>
+}
+else if (_expenses.Count == 0)
+{
+    <p>No expenses yet — add your first one above.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var e in _expenses)
+            {
+                <tr>
+                    <td>@e.Date.ToShortDateString()</td>
+                    <td>@e.Description</td>
+                    <td>@e.Category?.Name</td>
+                    <td>@e.Amount.ToString("C")</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditExpense(e)">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(e.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Expense>? _expenses;
+    private List<Category>? _categories;
+    private Expense _form = new() { Date = DateTime.Today };
+    private int? _editingId;
+    private string? _errorMessage;
+    private string _userId = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _userId = await CurrentUser.GetUserIdAsync();
+            _categories = await CategoryService.GetAllAsync();
+            _expenses = await ExpenseService.GetAllForUserAsync(_userId);
+        }
+        catch (ServiceException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private void EditExpense(Expense e)
+    {
+        _editingId = e.Id;
+        _form = new Expense
+        {
+            Id = e.Id,
+            Description = e.Description,
+            Amount = e.Amount,
+            Date = e.Date,
+            CategoryId = e.CategoryId,
+            UserId = _userId
+        };
+    }
+
+    private void CancelEdit()
+    {
+        _editingId = null;
+        _form = new Expense { Date = DateTime.Today };
+    }
+
+    private async Task SaveAsync()
+    {
+        try
+        {
+            _errorMessage = null;
+            _form.UserId = _userId;
+
+            if (_editingId is null)
+                await ExpenseService.AddAsync(_form);
+            else
+                await ExpenseService.UpdateAsync(_form);
+
+            _expenses = await ExpenseService.GetAllForUserAsync(_userId);
+            CancelEdit();
+        }
+        catch (ServiceException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        try
+        {
+            await ExpenseService.DeleteAsync(id, _userId);
+            _expenses = await ExpenseService.GetAllForUserAsync(_userId);
+        }
+        catch (ServiceException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+}

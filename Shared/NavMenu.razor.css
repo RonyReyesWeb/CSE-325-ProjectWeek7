@@ -1,0 +1,27 @@
+.navbar-brand {
+    font-size: 1.1rem;
+    color: white;
+}
+
+.nav-item {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+}
+
+.nav-item:first-of-type {
+    padding-top: 1rem;
+}
+
+.nav-link {
+    color: #d7d7d7;
+    background: none;
+    border: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: white;
+}

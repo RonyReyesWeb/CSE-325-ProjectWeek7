@@ -1,0 +1,132 @@
+@page "/budgets"
+@attribute [Authorize]
+@inject IBudgetService BudgetService
+@inject ICategoryService CategoryService
+@inject CurrentUserService CurrentUser
+
+<PageTitle>Budgets</PageTitle>
+
+<h1>Budgets</h1>
+
+@if (_errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@_errorMessage</div>
+}
+
+<EditForm Model="_form" OnValidSubmit="SaveAsync" class="row g-2 align-items-end mb-4">
+    <DataAnnotationsValidator />
+    <div class="col-md-4">
+        <label class="form-label">Category</label>
+        <InputSelect class="form-select" @bind-Value="_form.CategoryId">
+            <option value="0">Choose...</option>
+            @if (_categories is not null)
+            {
+                @foreach (var c in _categories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            }
+        </InputSelect>
+        <ValidationMessage For="() => _form.CategoryId" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Monthly limit</label>
+        <InputNumber class="form-control" @bind-Value="_form.MonthlyLimit" />
+        <ValidationMessage For="() => _form.MonthlyLimit" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">@(_editingId is null ? "Add" : "Save")</button>
+    </div>
+</EditForm>
+
+@if (_budgets is null)
+{
+    <p><em>Loading…</em></p>
+}
+else if (_budgets.Count == 0)
+{
+    <p>No budgets yet — add one above to start tracking against it.</p>
+}
+else
+{
+    <table class="table">
+        <thead><tr><th>Category</th><th>Monthly limit</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var b in _budgets)
+            {
+                <tr>
+                    <td>@b.Category?.Name</td>
+                    <td>@b.MonthlyLimit.ToString("C")</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditBudget(b)">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(b.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Budget>? _budgets;
+    private List<Category>? _categories;
+    private Budget _form = new();
+    private int? _editingId;
+    private string? _errorMessage;
+    private string _userId = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _userId = await CurrentUser.GetUserIdAsync();
+            _categories = await CategoryService.GetAllAsync();
+            _budgets = await BudgetService.GetAllForUserAsync(_userId);
+        }
+        catch (ServiceException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private void EditBudget(Budget b)
+    {
+        _editingId = b.Id;
+        _form = new Budget { Id = b.Id, CategoryId = b.CategoryId, MonthlyLimit = b.MonthlyLimit, UserId = _userId };
+    }
+
+    private async Task SaveAsync()
+    {
+        try
+        {
+            _errorMessage = null;
+            _form.UserId = _userId;
+
+            if (_editingId is null)
+                await BudgetService.AddAsync(_form);
+            else
+                await BudgetService.UpdateAsync(_form);
+
+            _budgets = await BudgetService.GetAllForUserAsync(_userId);
+            _editingId = null;
+            _form = new Budget();
+        }
+        catch (ServiceException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        try
+        {
+            await BudgetService.DeleteAsync(id, _userId);
+            _budgets = await BudgetService.GetAllForUserAsync(_userId);
+        }
+        catch (ServiceException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+}
