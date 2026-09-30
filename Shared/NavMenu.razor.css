@@ -1,27 +1,46 @@
+.top-row {
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    padding-inline: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 .navbar-brand {
-    font-size: 1.1rem;
-    color: white;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #f7f4ec !important;
+    letter-spacing: 0.01em;
+}
+
+.nav-scrollable {
+    padding-top: 0.75rem;
 }
 
 .nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem;
-}
-
-.nav-item:first-of-type {
-    padding-top: 1rem;
+    font-size: 0.88rem;
+    padding-bottom: 0.15rem;
 }
 
 .nav-link {
-    color: #d7d7d7;
+    color: #b9c0cf;
     background: none;
     border: none;
     display: block;
     width: 100%;
     text-align: left;
-    padding: 0.5rem 0;
+    padding: 0.5rem 1.25rem;
+    border-left: 2px solid transparent;
 }
 
-.nav-link:hover, .nav-link.active {
-    color: white;
+.nav-link:hover {
+    color: #f7f4ec;
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.nav-link.active {
+    color: #f7f4ec;
+    border-left-color: #a2732f;
+    background-color: rgba(255, 255, 255, 0.06);
+    font-weight: 500;
 }

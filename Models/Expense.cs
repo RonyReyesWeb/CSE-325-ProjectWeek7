@@ -25,6 +25,5 @@ public class Expense
 
     // Owning user. Set by the service layer from the signed-in user — never
     // exposed to or editable through the UI directly.
-    [Required]
     public string UserId { get; set; } = string.Empty;
 }

@@ -15,6 +15,5 @@ public class Budget
     [Range(0, 1_000_000, ErrorMessage = "Limit must be 0 or greater.")]
     public decimal MonthlyLimit { get; set; }
 
-    [Required]
     public string UserId { get; set; } = string.Empty;
 }

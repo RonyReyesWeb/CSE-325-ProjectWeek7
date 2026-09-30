@@ -1,14 +1,195 @@
+/* ============================================================
+   Theme: "Ledger" — a quiet, paper-and-ink look for a budget
+   tracker, instead of default Bootstrap blue. One accent color
+   (brass) carries all primary actions; green/rust are reserved
+   for actual budget status, so they stay meaningful.
+   ============================================================ */
+
+:root {
+    --ink: #16233b;
+    --ink-soft: #24344f;
+    --paper: #f7f4ec;
+    --paper-line: #e1dac8;
+    --text: #262320;
+    --text-muted: #6b6455;
+    --brass: #a2732f;
+    --brass-dark: #85601f;
+    --ledger-green: #3f6b4a;
+    --ledger-green-bg: #eaf1ea;
+    --ledger-rust: #a3402c;
+    --ledger-rust-bg: #f7e9e4;
+}
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: var(--paper);
+    color: var(--text);
+    font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.975rem;
+}
+
+h1, h2, h3, .navbar-brand {
+    font-family: "Lora", Georgia, serif;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+h1 {
+    font-size: 1.9rem;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.01em;
+}
+
+a {
+    color: var(--brass-dark);
+}
+
+a:hover {
+    color: var(--brass);
 }
 
 .content {
-    padding-top: 1.1rem;
+    padding: 1.75rem 2rem 3rem;
+    max-width: 960px;
 }
 
-.nav-scrollable {
-    color: white;
+/* ---------- Top bar (who's signed in / log in-out) ---------- */
+
+.top-row {
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--paper-line);
 }
+
+.top-row span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* ---------- Forms: styled as a single ledger "entry row" ---------- */
+
+form.row {
+    background-color: #fffdf9;
+    border: 1px solid var(--paper-line);
+    border-radius: 3px;
+    padding: 1.25rem 1.25rem 0.75rem;
+    margin-inline: 0;
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.form-control, .form-select {
+    border: 1px solid var(--paper-line);
+    border-radius: 3px;
+    background-color: #fff;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--brass);
+    box-shadow: 0 0 0 3px rgba(162, 115, 47, 0.18);
+}
+
+.form-check-input:checked {
+    background-color: var(--brass);
+    border-color: var(--brass);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn-primary {
+    background-color: var(--brass);
+    border-color: var(--brass);
+    font-weight: 500;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--brass-dark);
+    border-color: var(--brass-dark);
+}
+
+.btn-outline-secondary, .btn-outline-danger {
+    --bs-btn-padding-y: 0.2rem;
+    --bs-btn-padding-x: 0.55rem;
+    font-size: 0.82rem;
+}
+
+.btn-link {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+/* ---------- Tables: hairline ledger rows, not zebra-striped grid ---------- */
+
+.table {
+    --bs-table-bg: transparent;
+    border-top: 1px solid var(--ink);
+}
+
+.table > thead > tr > th {
+    font-family: "Lora", Georgia, serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink) !important;
+    padding-top: 0.9rem;
+}
+
+.table > tbody > tr > td {
+    border-bottom: 1px solid var(--paper-line);
+    vertical-align: middle;
+    padding: 0.65rem 0.5rem;
+}
+
+.table td:nth-child(2):has(+ td), /* amount-ish columns lean tabular */
+.table td.amount {
+    font-variant-numeric: tabular-nums;
+}
+
+.table-danger > td {
+    background-color: var(--ledger-rust-bg) !important;
+}
+
+/* ---------- Alerts ---------- */
+
+.alert-danger {
+    background-color: var(--ledger-rust-bg);
+    border: 1px solid #e0c3ba;
+    color: var(--ledger-rust);
+    border-radius: 3px;
+}
+
+/* ---------- Budget-summary progress bars ---------- */
+
+.progress {
+    height: 1.4rem;
+    background-color: var(--paper-line);
+    border-radius: 2px;
+}
+
+.progress-bar {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.progress-bar.bg-success {
+    background-color: var(--ledger-green) !important;
+}
+
+.progress-bar.bg-danger {
+    background-color: var(--ledger-rust) !important;
+}
+
+/* ---------- List group (Categories page) ---------- */
+
+.list-group-item {
+    border-color: var(--paper-line);
+    background-color: transparent;
+}
+
+/* ---------- Blazor error UI ---------- */
 
 #blazor-error-ui {
     background: lightyellow;
@@ -29,6 +210,9 @@ html, body {
     top: 0.5rem;
 }
 
-.progress {
-    height: 1.5rem;
+/* ---------- Focus visibility (accessibility) ---------- */
+
+a:focus-visible, button:focus-visible, .nav-link:focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
 }
