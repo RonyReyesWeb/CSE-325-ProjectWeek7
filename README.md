@@ -66,21 +66,44 @@ wwwroot/      Static assets (site.css)
 5. Open the URL shown in the console (something like `https://localhost:5001`),
    register a new account, and start adding categories, budgets, and expenses.
 
-## Deploying
+## Deploying (GitHub + Render)
 
-Any host that supports ASP.NET Core 8 and WebSockets (required for Blazor
-Server's SignalR connection) works — e.g. **Render** or **Azure App Service**.
-General steps:
+GitHub Pages only hosts static sites, so it can't run a Blazor Server app.
+The code lives on GitHub, and [Render](https://render.com) runs it for free
+using the `Dockerfile` in this repo.
 
-1. Push this repo to GitHub.
-2. Create a new Web Service (Render) or App Service (Azure) pointing at the
-   repo, with the .NET 8 runtime.
-3. Set the `ConnectionStrings__DefaultConnection` environment variable if you
-   want the database file stored somewhere other than the default
-   `budgettracker.db` in the app's working directory. (Note: SQLite's file
-   is not persistent across deploys/restarts on most free hosting tiers —
-   fine for a class demo, but for anything long-lived consider swapping to a
-   managed Postgres/SQL Server database later.)
-4. Make sure WebSockets are enabled on the host (on by default on Render; on
-   Azure App Service, turn on "Web sockets" under Configuration > General
-   settings).
+Files used for deployment:
+
+| File | Purpose |
+|------|---------|
+| `Dockerfile` | Builds and runs the app in a .NET 8 container |
+| `.dockerignore` | Keeps `bin/`, `obj/` and local `.db` files out of the image |
+| `render.yaml` | Render Blueprint: creates the web service automatically |
+| `.github/workflows/build.yml` | GitHub Actions: builds the app on every push |
+
+Steps:
+
+1. Commit and push to GitHub:
+   ```bash
+   git add .
+   git commit -m "Add deployment setup"
+   git push
+   ```
+2. Check the **Actions** tab on GitHub — the *Build* workflow should be green.
+3. Sign in to [render.com](https://render.com) with your GitHub account.
+4. Click **New → Blueprint**, pick this repository, and click **Apply**.
+   Render reads `render.yaml` and builds the Docker image (first build takes
+   a few minutes).
+5. Open the `https://personal-budget-tracker-xxxx.onrender.com` URL Render
+   gives you, register an account, and use the app.
+
+After that, every push to `main` redeploys automatically.
+
+Notes:
+
+- The free tier sleeps after ~15 minutes without traffic; the first visit
+  after that takes ~30–60 seconds to wake up.
+- The SQLite database is stored inside the container, so **data is reset on
+  every redeploy/restart**. That is fine for a class demo; for permanent data,
+  add a Render persistent disk mounted at `/app/data` (paid plan) or switch to
+  a managed database.

@@ -1,0 +1,12 @@
+# Render Blueprint: lets Render create the web service straight from this repo.
+services:
+  - type: web
+    name: personal-budget-tracker
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true          # redeploys every time you push to main
+    healthCheckPath: /Account/Login
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
