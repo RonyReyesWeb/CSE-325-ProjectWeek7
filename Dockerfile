@@ -18,6 +18,9 @@ COPY --from=build /app/publish ./
 # SQLite database lives in /app/data
 RUN mkdir -p /app/data
 ENV ASPNETCORE_ENVIRONMENT=Production \
+    LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     ConnectionStrings__DefaultConnection="Data Source=/app/data/budgettracker.db"
 
 # Render (and most hosts) pass the port in $PORT; Program.cs reads it. 8080 is the fallback.

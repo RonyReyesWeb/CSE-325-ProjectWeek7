@@ -1,10 +1,19 @@
+using System.Globalization;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PersonalBudgetTracker.Data;
 using PersonalBudgetTracker.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Always format numbers, dates and money as US English ($), no matter what
+// language/region the hosting server is set to (Render's container has none,
+// which made currency show up as a generic "¤" sign).
+var usCulture = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = usCulture;
+CultureInfo.DefaultThreadCurrentUICulture = usCulture;
 
 // Hosts like Render tell the app which port to listen on through the PORT env variable.
 var port = Environment.GetEnvironmentVariable("PORT");
@@ -72,6 +81,13 @@ var app = builder.Build();
 // ---------- Middleware pipeline ----------
 
 app.UseForwardedHeaders();
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(usCulture),
+    SupportedCultures = new[] { usCulture },
+    SupportedUICultures = new[] { usCulture }
+});
 
 if (!app.Environment.IsDevelopment())
 {
